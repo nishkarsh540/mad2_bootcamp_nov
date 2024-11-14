@@ -2,11 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SignupUser from '@/components/SignupUser.vue'
 import LoginUser from '@/components/LoginUser.vue'
+import AdminDashboard from '@/components/AdminDashboard.vue'
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView
+  },
+  {
+    path: '/admin-dashboard',
+    name: 'Admin',
+    component: AdminDashboard
   },
   {
     path: '/login',

@@ -16,7 +16,8 @@ class User(db.Model):
     password = db.Column(db.String,nullable=False)
     role = db.Column(db.String,default=False)
     approved = db.Column(db.Boolean,default=False)
-
+#approved = db.Column(db.Boolean,defrault=False)
+#Bedefault store-manager approved = 'pending' if we approved approved='approved and if we reject then approved ='reject
 
 
 

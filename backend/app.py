@@ -1,6 +1,6 @@
 from datetime import datetime,timedelta
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager,create_access_token,jwt_required,get_jwt_identity,unset_jwt_cookies
 from flask_cors import CORS
@@ -80,6 +80,52 @@ class UserInfo(Resource):
 
         return user_info
 
+class PendingManager(Resource):
+    @jwt_required()
+    def get(self):
+        pending_managers = User.query.filter_by(approved=False,role='store-manager').all()
+
+        pending_managers_data=[]
+
+        
+        for manager in pending_managers:
+            manager_data={
+                'id':manager.id,
+                'username':manager.username
+            }
+            pending_managers_data.append(manager_data)
+        return jsonify(pending_managers_data)
+    
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+
+        manager_id = data.get('manager_id')
+        status = data.get('status')
+
+        if not manager_id or status not in ['approve','reject']:
+            return jsonify({"message":"Invalid Request Data"}), 400
+        user = User.query.get(manager_id)
+
+        if not user:
+            return jsonify({"message":"User not found"}), 404
+        if status == 'approve':
+            user.approved=True
+        elif status == 'reject':
+            db.session.delete(user)
+        db.session.commit()
+
+        return ({"message":"manager actino processed"}), 200
+
+
+class StatPage(Resource):
+    def get(self):
+        roles_count = db.session.query(User.role,db.func.count(User.id)).group_by(User.role).all()
+
+        return jsonify({role:count for role,count in roles_count})
+
+api.add_resource(StatPage,'/stat')
+api.add_resource(PendingManager,'/admin/pending_managers')
 api.add_resource(UserInfo,'/userinfo')
 api.add_resource(SignupResource,'/signup')
 api.add_resource(LoginResource,'/login')
