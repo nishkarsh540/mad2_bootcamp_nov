@@ -1,12 +1,12 @@
 from datetime import datetime,timedelta
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask,jsonify,request
+from flask import Flask,jsonify,request,send_file
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager,create_access_token,jwt_required,get_jwt_identity,unset_jwt_cookies
 from flask_cors import CORS
-from model import db,User
+from model import db,User,File
 from flask_restful import Api,Resource , reqparse
-
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///grocery.db'
@@ -124,6 +124,42 @@ class StatPage(Resource):
 
         return jsonify({role:count for role,count in roles_count})
 
+ASSETS_FOLDER = os.path.abspath(os.path.join(os.getcwd(),'static/'))
+
+class UploadResource(Resource):
+    def post(self):
+        if 'file' not in request.files:
+            return jsonify({"error":"No file part in the request"}),400
+        file = request.files['file']
+
+        if file.filename=='':
+            return jsonify({'error':'No file selected'}),400
+
+
+        try:
+            file_path = os.path.join(ASSETS_FOLDER,file.filename)
+            file.save(file_path)
+            new_file = File(filename=file.filename)
+            db.session.add(new_file)
+            db.session.commit()
+
+            return({"message":"file uplaoded successfully","file":file.filename}),200
+        
+        except Exception as e:
+            return jsonify({"error":str(e)}),500
+
+
+    def get(self):
+        try:
+            files=File.query.all()
+            file_list = [{"id":file.id,"filename":file.filename} for file in files]
+
+            return ({"files":file_list}),200
+        except Exception as e:
+            return jsonify({"error":str(e)}),500
+
+
+api.add_resource(UploadResource,'/upload')
 api.add_resource(StatPage,'/stat')
 api.add_resource(PendingManager,'/admin/pending_managers')
 api.add_resource(UserInfo,'/userinfo')

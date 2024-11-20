@@ -3,17 +3,25 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
     <div v-if="isAuthenticated">
+      <router-link to="/admin-dashboard">Admin Dashboard</router-link>
       <button @click="logout">Logout</button>
     </div>
   </nav>
+  <div id="app">
+    <nav-bar />
+  </div>
   <router-view/>
 </template>
 
 <script>
+import NavBar from "@/components/NavBar.vue";
 import { mapGetters,mapActions } from 'vuex';
 
 export default{
   name:'App',
+  components:{
+    NavBar,
+  },
   computed:{
     ...mapGetters(['isAuthenticated'])
   },

@@ -3,11 +3,17 @@ import HomeView from '../views/HomeView.vue'
 import SignupUser from '@/components/SignupUser.vue'
 import LoginUser from '@/components/LoginUser.vue'
 import AdminDashboard from '@/components/AdminDashboard.vue'
+import FileUpload from '@/components/FileUpload.vue'
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView
+  },
+  {
+    path: '/fileupload',
+    name: 'File Upload',
+    component: FileUpload
   },
   {
     path: '/admin-dashboard',

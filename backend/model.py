@@ -19,6 +19,10 @@ class User(db.Model):
 #approved = db.Column(db.Boolean,defrault=False)
 #Bedefault store-manager approved = 'pending' if we approved approved='approved and if we reject then approved ='reject
 
+class File(db.Model):
+    id= db.Column(db.Integer,primary_key=True)
+    filename = db.Column(db.String)
+
 
 
 with app.app_context():
